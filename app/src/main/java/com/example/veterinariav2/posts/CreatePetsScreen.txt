@@ -1,0 +1,184 @@
+package com.example.veterinariav2.posts
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.veterinariav2.data.RetrofitClient
+import com.example.veterinariav2.model.PetPost
+import kotlinx.coroutines.launch
+
+
+
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CreatePetScreen(navController: NavController) {
+    var nombre by remember { mutableStateOf("") }
+    var idVeterinario by remember { mutableStateOf("") }
+    var idDueno by remember { mutableStateOf("") }
+    var edad by remember { mutableStateOf("") }
+    var raza by remember { mutableStateOf("") }
+    var sexo by remember { mutableStateOf("") }
+    var peso by remember { mutableStateOf("") }
+    var imagenUri by remember { mutableStateOf<Uri?>(null) }
+    var message by remember { mutableStateOf("") }
+
+    // Variable para verificar si todos los campos están completos
+    val isFormValid = nombre.isNotBlank() && idVeterinario.isNotBlank() && idDueno.isNotBlank() && edad.isNotBlank() && raza.isNotBlank() && sexo.isNotBlank() && peso.isNotBlank() && imagenUri != null
+
+    val scope = rememberCoroutineScope()
+
+    // Launcher para seleccionar la imagen
+    val imagePickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        imagenUri = uri
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        TextField(
+            value = nombre,
+            onValueChange = { nombre = it.trim() },
+            label = { Text("Nombre") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        TextField(
+            value = idVeterinario,
+            onValueChange = { idVeterinario = it.trim() },
+            label = { Text("ID Veterinario") },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        TextField(
+            value = idDueno,
+            onValueChange = { idDueno = it.trim() },
+            label = { Text("ID Dueño") },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        TextField(
+            value = edad,
+            onValueChange = { edad = it.trim() },
+            label = { Text("Edad") },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        TextField(
+            value = raza,
+            onValueChange = { raza = it.trim() },
+            label = { Text("Raza") },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        TextField(
+            value = sexo,
+            onValueChange = { sexo = it.trim() },
+            label = { Text("Sexo") },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+        TextField(
+            value = peso,
+            onValueChange = { peso = it.trim() },
+            label = { Text("Peso") },
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        )
+
+        // Botón para seleccionar la imagen
+        Button(
+            onClick = { imagePickerLauncher.launch("image/*") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Seleccionar Imagen")
+        }
+
+        imagenUri?.let {
+            Text("Imagen seleccionada: $it")
+        }
+
+        Button(
+            onClick = {
+                val pet = PetPost(
+                    nombre = nombre,
+                    idVeterinario = idVeterinario.toInt(),
+                    idDueno = idDueno.toInt(),
+                    edad = edad.toInt(),
+                    raza = raza,
+                    sexo = sexo,
+                    peso = peso,
+                    imagen = imagenUri.toString()
+                )
+                scope.launch {
+                    try {
+                        val response = RetrofitClient.petsService.createPet(pet)
+                        if (response.isSuccessful) {
+                            message = "Pet created successfully!"
+                            navController.navigate("login") // Navigate back to the login screen
+                        } else {
+                            message = "Error: ${response.code()} - ${response.message()}"
+                        }
+                    } catch (e: Exception) {
+                        message = "Exception: ${e.message}"
+                    }
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            enabled = isFormValid // Habilitar o deshabilitar el botón basado en la validación del formulario
+        ) {
+            Text("Create Pet")
+        }
+
+        if (message.isNotEmpty()) {
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Botón para volver al inicio
+        Button(
+            onClick = {
+                navController.popBackStack() // Navigate back to the previous destination
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Volver al inicio")
+        }
+    }
+}

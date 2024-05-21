@@ -1,0 +1,35 @@
+ val navController = rememberNavController()
+                    NavHost(navController = navController, startDestination = "login") {
+                        composable("login") {
+                            LoginScreen(navController = navController)
+                        }
+                        composable(
+                            "petsList/{ownerId}",
+                            arguments = listOf(navArgument("ownerId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val ownerId = backStackEntry.arguments?.getInt("ownerId")
+                            ownerId?.let {
+                                OwnerListScreen(navController = navController,ownerId = it)
+                            }
+                        }
+                        composable("createOwner") {
+                            CreateOwnerScreen(navController = navController)
+                        }
+                        composable(
+                            "createPet/{ownerId}",
+                            arguments = listOf(navArgument("ownerId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val ownerId = backStackEntry.arguments?.getInt("ownerId")
+                            CreatePetScreen(navController = navController, ownerId = ownerId)
+                        }
+
+                        composable(
+                            "createCita/{petId}/{ownerId}",
+                            arguments = listOf(navArgument("petId") { type = NavType.IntType }, navArgument("ownerId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val petId = backStackEntry.arguments?.getInt("petId")
+                            val ownerId = backStackEntry.arguments?.getInt("ownerId")
+                            CreateCitaScreen(navController = navController, petId = petId, ownerId = ownerId)
+                        }
+
+                    }
