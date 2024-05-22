@@ -1,15 +1,8 @@
 package com.example.veterinariav2.navigation
 
-import android.annotation.SuppressLint
-
-
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-
-
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
@@ -17,14 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.veterinariav2.data.RetrofitClient
 import com.example.veterinariav2.model.CitaList
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CitasTextField(mascotaId: Int) {
@@ -47,16 +43,16 @@ fun CitasTextField(mascotaId: Int) {
         topBar = {
             TopAppBar(
                 title = {
-
-                        Text(text = "Lista de Citas",textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-
+                    Text(
+                        text = "Lista de Citas",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             )
         }
     ) {
-        Spacer(modifier = Modifier.padding(50.dp))
-        // Muestra la lista de citas en un  a LazyColumn con Cards
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(top = 50.dp)) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(it)) {
             items(citasState.value) { cita ->
                 CitasCard(cita = cita)
             }
@@ -64,16 +60,28 @@ fun CitasTextField(mascotaId: Int) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CitasCard(cita: CitaList) {
-    Card(modifier = Modifier
-        .padding(8.dp)
-        .fillMaxWidth()) {
+    val formattedDate = formatFechaCita(cita.fechaCita)
+
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Fecha: ${cita.fechaCita}")
+            Text(text = "Fecha: $formattedDate")
             Text(text = "Motivo: ${cita.motivo}")
             Text(text = "Observaciones: ${cita.observaciones}")
             Text(text = "Nombre de la mascota: ${cita.nombre}")
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun formatFechaCita(fechaCita: String): String {
+    val dateTime = LocalDateTime.parse(fechaCita, DateTimeFormatter.ISO_DATE_TIME)
+    val formatter = DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy, HH:mm", Locale("es"))
+    return dateTime.format(formatter)
 }
