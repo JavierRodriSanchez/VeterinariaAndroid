@@ -50,8 +50,18 @@ android {
 }
 
 dependencies {
+    implementation ("com.github.kittinunf.fuel:fuel:2.3.1")
+    implementation ("com.github.kittinunf.fuel:fuel-json:2.3.1")
+    //Stripe implementation
+    implementation("com.stripe:stripe-android:20.44.0")
+    implementation ("com.stripe:stripe-java:25.0.0")
+
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.0")
+
     implementation ("androidx.navigation:navigation-compose:2.4.0-alpha10")
 
+    implementation ("com.stripe:stripe-android:16.11.0")
+    implementation ("com.google.android.gms:play-services-wallet:19.1.0")
     implementation ("com.google.android.material:material:1.4.0")
     implementation ("androidx.compose.material3:material3:1.0.0-alpha01")
 
@@ -62,7 +72,7 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime-livedata:1.4.3")
     implementation ("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation(platform("androidx.compose:compose-bom:2023.03.00"))
     implementation("androidx.compose.ui:ui")

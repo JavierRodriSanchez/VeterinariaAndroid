@@ -12,21 +12,30 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.veterinariav2.navigation.CitasTextField
 import com.example.veterinariav2.navigation.LoginScreen
+import com.example.veterinariav2.navigation.MedicineListScreen
 import com.example.veterinariav2.navigation.OwnerListScreen
+import com.example.veterinariav2.navigation.TipoMedicinaListScreen
 import com.example.veterinariav2.posts.CreateCitaScreen
 import com.example.veterinariav2.posts.CreateOwnerScreen
 import com.example.veterinariav2.posts.CreatePetScreen
 import com.example.veterinariav2.ui.theme.VeterinariaV2Theme
 
 class MainActivity : ComponentActivity() {
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+       // PaymentConfiguration.init(applicationContext, PUBLIC_KEY)
+        //App()
+
+
+
+
+
         setContent {
             VeterinariaV2Theme {
                 Surface(
@@ -44,7 +53,7 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val ownerId = backStackEntry.arguments?.getInt("ownerId")
                             ownerId?.let {
-                                OwnerListScreen(navController = navController,ownerId = it)
+                                OwnerListScreen(navController = navController, ownerId = it)
                             }
                         }
                         composable("createOwner") {
@@ -60,11 +69,17 @@ class MainActivity : ComponentActivity() {
 
                         composable(
                             "createCita/{petId}/{ownerId}",
-                            arguments = listOf(navArgument("petId") { type = NavType.IntType }, navArgument("ownerId") { type = NavType.IntType })
+                            arguments = listOf(
+                                navArgument("petId") { type = NavType.IntType },
+                                navArgument("ownerId") { type = NavType.IntType })
                         ) { backStackEntry ->
                             val petId = backStackEntry.arguments?.getInt("petId")
                             val ownerId = backStackEntry.arguments?.getInt("ownerId")
-                            CreateCitaScreen(navController = navController, petId = petId, ownerId = ownerId)
+                            CreateCitaScreen(
+                                navController = navController,
+                                petId = petId,
+                                ownerId = ownerId
+                            )
                         }
 
                         //Posible borrado
@@ -77,9 +92,31 @@ class MainActivity : ComponentActivity() {
                                 CitasTextField(petId)
                             }
                         }
+
+                        composable("ListTipoMedicina") {
+                            TipoMedicinaListScreen(navController = navController)
+                        }
+
+                        composable(
+                            "ListMedicines/{tipoId}",
+                            arguments = listOf(
+                                navArgument("tipoId") { type = NavType.IntType },
+
+                                )
+                        ) { backStackEntry ->
+                            val tipoId = backStackEntry.arguments?.getInt("tipoId")
+
+                            if (tipoId != null ) {
+                                MedicineListScreen(
+                                    navController = navController,
+                                    tipoId = tipoId
+
+                                )
+                            }
+                        }
                     }
                 }
-            }
-        }
-    }
-}
+            }}
+    }}
+
+

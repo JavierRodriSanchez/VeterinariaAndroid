@@ -9,7 +9,7 @@
                         ) { backStackEntry ->
                             val ownerId = backStackEntry.arguments?.getInt("ownerId")
                             ownerId?.let {
-                                OwnerListScreen(navController = navController,ownerId = it)
+                                OwnerListScreen(navController = navController, ownerId = it)
                             }
                         }
                         composable("createOwner") {
@@ -25,11 +25,98 @@
 
                         composable(
                             "createCita/{petId}/{ownerId}",
-                            arguments = listOf(navArgument("petId") { type = NavType.IntType }, navArgument("ownerId") { type = NavType.IntType })
+                            arguments = listOf(
+                                navArgument("petId") { type = NavType.IntType },
+                                navArgument("ownerId") { type = NavType.IntType })
                         ) { backStackEntry ->
                             val petId = backStackEntry.arguments?.getInt("petId")
                             val ownerId = backStackEntry.arguments?.getInt("ownerId")
-                            CreateCitaScreen(navController = navController, petId = petId, ownerId = ownerId)
+                            CreateCitaScreen(
+                                navController = navController,
+                                petId = petId,
+                                ownerId = ownerId
+                            )
                         }
 
-                    }
+                        //Posible borrado
+                        composable(
+                            "CitasList/{petId}",
+                            arguments = listOf(navArgument("petId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val petId = backStackEntry.arguments?.getInt("petId")
+                            petId?.let {
+                                CitasTextField(petId)
+                            }
+                        }
+
+                        composable("ListTipoMedicina") {
+                            TipoMedicinaListScreen(navController = navController)
+                        }
+
+                        composable(
+                            "ListMedicines/{tipoId}",
+                            arguments = listOf(
+                                navArgument("tipoId") { type = NavType.IntType },
+
+                                )
+                        ) { backStackEntry ->
+                            val tipoId = backStackEntry.arguments?.getInt("tipoId")
+
+                            if (tipoId != null ) {
+                                MedicineListScreen(
+                                    navController = navController,
+                                    tipoId = tipoId
+
+                                )
+                            }
+                        }
+
+
+
+
+
+                        fun startGooglePay(context: Context, totalAmount: Double) {
+                            val paymentsClient = Wallet.getPaymentsClient(
+                                context,
+                                Wallet.WalletOptions.Builder().setEnvironment(WalletConstants.ENVIRONMENT_TEST).build()
+                            )
+
+                            val paymentDataRequestJson = JSONObject().apply {
+                                put("apiVersion", 2)
+                                put("apiVersionMinor", 0)
+                                put("allowedPaymentMethods", JSONArray().put(JSONObject().apply {
+                                    put("type", "CARD")
+                                    put("parameters", JSONObject().apply {
+                                        put("allowedAuthMethods", JSONArray().put("PAN_ONLY").put("CRYPTOGRAM_3DS"))
+                                        put("allowedCardNetworks", JSONArray().put("AMEX").put("DISCOVER").put("JCB").put("MASTERCARD").put("VISA"))
+                                    })
+                                    put("tokenizationSpecification", JSONObject().apply {
+                                        put("type", "PAYMENT_GATEWAY")
+                                        put("parameters", JSONObject().apply {
+                                            put("gateway", "example")
+                                            put("gatewayMerchantId", "exampleGatewayMerchantId")
+                                        })
+                                    })
+                                }))
+                                put("transactionInfo", JSONObject().apply {
+                                    put("totalPriceStatus", "FINAL")
+                                    put("totalPrice", totalAmount.toString())
+                                    put("currencyCode", "USD")
+                                    put("countryCode", "US")
+                                })
+                                put("merchantInfo", JSONObject().apply {
+                                    put("merchantName", "Example Merchant")
+                                })
+                            }
+
+                            val paymentDataRequest = PaymentDataRequest.fromJson(paymentDataRequestJson.toString())
+
+                            val activity = context as? Activity ?: return
+                            AutoResolveHelper.resolveTask(
+                                paymentsClient.loadPaymentData(paymentDataRequest),
+                                activity,
+                                LOAD_PAYMENT_DATA_REQUEST_CODE
+                            )
+                        }
+
+                        private const val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
