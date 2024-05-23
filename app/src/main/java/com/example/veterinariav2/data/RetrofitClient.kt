@@ -31,4 +31,16 @@ object RetrofitClient {
     val apiService: ApiService by lazy {
         retrofit.create(ApiService::class.java)
     }
+
+    val tipoMedicinaService: TipoMedicinaService by lazy {
+        retrofit.create(TipoMedicinaService::class.java)
+    }
+
+    val medicineService: MedicineService by lazy {
+        retrofit.create(MedicineService::class.java)
+    }
+
+    val pagosService :PagoService by lazy {
+        retrofit.create(PagoService::class.java)
+    }
 }

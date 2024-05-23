@@ -1,0 +1,143 @@
+package com.example.veterinariav2.navigation
+import android.app.Activity
+import android.content.Context
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.example.veterinariav2.data.RetrofitClient
+import com.example.veterinariav2.model.Medicine
+import com.google.android.gms.wallet.*
+import org.json.JSONArray
+import org.json.JSONObject
+
+@Composable
+fun MedicineListScreen(navController: NavController, tipoId: Int) {
+    var medicines by remember { mutableStateOf<List<Medicine>>(emptyList()) }
+    var totalValue by remember { mutableStateOf(0.0) } // Estado para mantener el valor total
+
+    LaunchedEffect(Unit) {
+        try {
+            val response = RetrofitClient.medicineService.getMedicinesByType(tipoId)
+            if (response.isSuccessful) {
+                medicines = response.body() ?: emptyList()
+            } else {
+                // Manejar respuesta no exitosa
+            }
+        } catch (e: Exception) {
+            // Manejar excepción
+        }
+    }
+
+    val context = LocalContext.current
+
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        LazyColumn(
+            modifier = Modifier.weight(1f) // Para que la lista ocupe el espacio disponible
+        ) {
+            items(medicines) { medicine ->
+                MedicineCard(medicine = medicine, onAdd = { value ->
+                    totalValue += value
+                })
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+
+        // Barra inferior con los botones
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween // Espacio entre los botones
+        ) {
+            IconButton(onClick = {navController.navigate("ListTipoMedicina") }) {
+                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Add")
+            }
+            Button(onClick = {
+                startGooglePay(context, totalValue)
+            }) {
+                Text(text = "Pagar: $totalValue")
+            }
+        }
+    }
+}
+
+@Composable
+fun MedicineCard(medicine: Medicine, onAdd: (Double) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally // Centrar horizontalmente los elementos de la columna
+        ) {
+            Text(text = "Nombre: ${medicine.nombreMedicina}", textAlign = TextAlign.Center)
+            Text(text = "Precio: ${medicine.precio}", textAlign = TextAlign.Center)
+            Text(text = "Mascota: ${medicine.nombreMascota}", textAlign = TextAlign.Center)
+
+            IconButton(onClick = { onAdd(medicine.precio) }) {
+                Icon(imageVector = Icons.Filled.ArrowForward, contentDescription = "Add")
+            }
+        }
+    }
+}
+
+fun startGooglePay(context: Context, totalAmount: Double) {
+    val paymentsClient = Wallet.getPaymentsClient(
+        context,
+        Wallet.WalletOptions.Builder().setEnvironment(WalletConstants.ENVIRONMENT_TEST).build()
+    )
+
+    val paymentDataRequestJson = JSONObject().apply {
+        put("apiVersion", 2)
+        put("apiVersionMinor", 0)
+        put("allowedPaymentMethods", JSONArray().put(JSONObject().apply {
+            put("type", "CARD")
+            put("parameters", JSONObject().apply {
+                put("allowedAuthMethods", JSONArray().put("PAN_ONLY").put("CRYPTOGRAM_3DS"))
+                put("allowedCardNetworks", JSONArray().put("AMEX").put("DISCOVER").put("JCB").put("MASTERCARD").put("VISA"))
+            })
+            put("tokenizationSpecification", JSONObject().apply {
+                put("type", "PAYMENT_GATEWAY")
+                put("parameters", JSONObject().apply {
+                    put("gateway", "example")
+                    put("gatewayMerchantId", "exampleGatewayMerchantId")
+                })
+            })
+        }))
+        put("transactionInfo", JSONObject().apply {
+            put("totalPriceStatus", "FINAL")
+            put("totalPrice", totalAmount.toString())
+            put("currencyCode", "USD")
+            put("countryCode", "US")
+        })
+        put("merchantInfo", JSONObject().apply {
+            put("merchantName", "Example Merchant")
+        })
+    }
+
+    val paymentDataRequest = PaymentDataRequest.fromJson(paymentDataRequestJson.toString())
+
+    val activity = context as? Activity ?: return
+    AutoResolveHelper.resolveTask(
+        paymentsClient.loadPaymentData(paymentDataRequest),
+        activity,
+        LOAD_PAYMENT_DATA_REQUEST_CODE
+    )
+}
+
+private const val LOAD_PAYMENT_DATA_REQUEST_CODE = 991
