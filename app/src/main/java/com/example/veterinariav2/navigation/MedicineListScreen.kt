@@ -3,6 +3,7 @@ package com.example.veterinariav2.navigation
 
 import android.app.Activity
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,10 +14,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.veterinariav2.R
 import com.example.veterinariav2.data.RetrofitClient
 import com.example.veterinariav2.model.Cita
 import com.example.veterinariav2.model.Medicine
@@ -49,7 +53,14 @@ fun MedicineListScreen(navController: NavController, tipoId: Int) {
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Imagen de fondo
+        Image(
+            painter = painterResource(id = R.drawable.logoperro), // Cambia por tu imagen
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -71,7 +82,7 @@ fun MedicineListScreen(navController: NavController, tipoId: Int) {
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween // Espacio entre los botones
         ) {
-            IconButton(onClick = { navController.navigate("ListTipoMedicina") }) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
             }
             Button(onClick = {
@@ -114,7 +125,7 @@ fun MedicineListScreen(navController: NavController, tipoId: Int) {
             text = { Text("El pago se ha realizado correctamente.") }
         )
     }
-}
+}}
 
 fun obtenerFechaHoy(): String {
     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -135,7 +146,7 @@ fun MedicineCard(medicine: Medicine, onAdd: (Double) -> Unit) {
         ) {
             Text(text = "Nombre: ${medicine.nombreMedicina}", textAlign = TextAlign.Center)
             Text(text = "Precio: ${medicine.precio}", textAlign = TextAlign.Center)
-            Text(text = "Mascota: ${medicine.nombreMascota}", textAlign = TextAlign.Center)
+
 
             IconButton(onClick = { onAdd(medicine.precio) }) {
                 Icon(imageVector = Icons.Filled.ArrowForward, contentDescription = "Add")

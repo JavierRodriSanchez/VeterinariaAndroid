@@ -23,6 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.veterinariav2.data.RetrofitClient
 import com.example.veterinariav2.model.CitaList
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,14 +69,18 @@ fun CitasTextField(mascotaId: Int) {
 
 @Composable
 fun CitasCard(cita: CitaList) {
+
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+    val formattedDate = OffsetDateTime.parse(cita.fechaCita).toLocalDateTime().format(formatter)
+
     Card(modifier = Modifier
         .padding(8.dp)
         .fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Fecha: ${cita.fechaCita}")
+            Text(text = "Fecha: $formattedDate")
             Text(text = "Motivo: ${cita.motivo}")
             Text(text = "Observaciones: ${cita.observaciones}")
-            Text(text = "Nombre de la mascota: ${cita.nombre}")
+
         }
     }
 }
