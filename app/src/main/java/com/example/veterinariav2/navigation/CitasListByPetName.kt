@@ -43,7 +43,7 @@ fun CitasTextField(navController: NavController, mascotaId: Int) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Lista de Citas",
+                        text = "Lista de Citass",
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
