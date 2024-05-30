@@ -8,5 +8,5 @@ data class PetPost(
     val raza: String,
     val sexo: String,
     val peso: String,
-    val imagen: String
+    val imagen: String?
 )

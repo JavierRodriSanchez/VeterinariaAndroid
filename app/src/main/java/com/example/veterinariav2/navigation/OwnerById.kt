@@ -78,8 +78,8 @@ fun OwnerListScreen(navController: NavController, ownerId: Int) {
 
                         }
 
-                        Button(onClick = { /* Acción para el tercer botón */ }) {
-                            Text("Botón 3")
+                        Button(onClick = { navController.navigate("mapa") }) {
+                            Text("Mapa")
                         }
                         Button(onClick = { /* Acción para el cuarto botón */ }) {
                             Text("Botón 4")

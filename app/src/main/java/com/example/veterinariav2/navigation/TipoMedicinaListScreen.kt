@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +23,7 @@ import com.example.veterinariav2.R
 import com.example.veterinariav2.data.RetrofitClient
 import com.example.veterinariav2.model.TipoMedicina
 import com.example.veterinariav2.ui.theme.Shapes
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,10 +65,32 @@ fun TipoMedicinaListScreen(navController: NavController) {
             )
         },
         content = { paddingValues ->
-            LazyColumn(contentPadding = paddingValues) {
-                items(tiposMedicina) { tipoMedicina ->
-                    TipoMedicinaCard(tipoMedicina = tipoMedicina, navController = navController)
-                    Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(tiposMedicina) { tipoMedicina ->
+                        TipoMedicinaCard(tipoMedicina = tipoMedicina, navController = navController)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
+                // Botón en la parte inferior con una flecha hacia la izquierda
+                Button(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Volver a Lista")
                 }
             }
         }
@@ -75,8 +99,6 @@ fun TipoMedicinaListScreen(navController: NavController) {
 
 @Composable
 fun TipoMedicinaCard(tipoMedicina: TipoMedicina, navController: NavController) {
-
-
     Card(
         modifier = Modifier
             .fillMaxWidth()

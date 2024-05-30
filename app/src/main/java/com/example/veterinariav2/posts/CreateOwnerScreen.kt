@@ -30,12 +30,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateOwnerScreen(navController: NavController) {
+fun CreateOwnerScreen(navController: NavController,email:String,password:String) {
     var nombre by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
-    var correo by remember { mutableStateOf("") }
-    var contrasena by remember { mutableStateOf("") }
+    var correo by remember { mutableStateOf(email) }
+    var contrasena by remember { mutableStateOf(password) }
     var message by remember { mutableStateOf("") }
 
     // Variable para verificar si todos los campos están completos
