@@ -66,8 +66,8 @@ fun OwnerListScreen(navController: NavController, ownerId: Int) {
                             )
 
                         }
-
-                        Button(onClick = { navController.navigate("ListTipoMedicina")}) {
+                        //-------------------------------------------------------------Cmabiar
+                        Button(onClick = { navController.navigate("ListTipoMedicina/${ownerId}")}) {
                             Image(
                                 modifier = Modifier.size(24.dp),
                                         painter = painterResource(id = R.drawable.carritocompras),

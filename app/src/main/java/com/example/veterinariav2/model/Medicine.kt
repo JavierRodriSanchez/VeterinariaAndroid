@@ -2,7 +2,7 @@ package com.example.veterinariav2.model
 
 import com.google.gson.annotations.SerializedName
 
-data class Medicine(
+data class  Medicine(
     @SerializedName("idMedicina") val idMedicina: Int,
     @SerializedName("nombreMedicina") val nombreMedicina: String,
     @SerializedName("mascotaId") val mascotaId: Int,

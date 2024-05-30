@@ -150,5 +150,15 @@ fun CreateCitaScreen(navController: NavController, petId: Int?, ownerId: Int?) {
                 modifier = Modifier.padding(vertical = 8.dp)
             )
         }
+        Button(
+            onClick = {
+                navController.popBackStack() // Navigate back to the previous destination
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Volver ")
+        }
     }
 }

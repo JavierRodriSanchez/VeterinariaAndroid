@@ -27,7 +27,7 @@ import com.example.veterinariav2.ui.theme.Shapes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TipoMedicinaListScreen(navController: NavController) {
+fun TipoMedicinaListScreen(navController: NavController, ownerId:Int) {
     var tiposMedicina by remember { mutableStateOf<List<TipoMedicina>>(emptyList()) }
 
     LaunchedEffect(Unit) {
@@ -74,7 +74,7 @@ fun TipoMedicinaListScreen(navController: NavController) {
                     modifier = Modifier.weight(1f)
                 ) {
                     items(tiposMedicina) { tipoMedicina ->
-                        TipoMedicinaCard(tipoMedicina = tipoMedicina, navController = navController)
+                        TipoMedicinaCard(tipoMedicina = tipoMedicina, navController = navController,ownerId=ownerId)
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -98,7 +98,7 @@ fun TipoMedicinaListScreen(navController: NavController) {
 }
 
 @Composable
-fun TipoMedicinaCard(tipoMedicina: TipoMedicina, navController: NavController) {
+fun TipoMedicinaCard(tipoMedicina: TipoMedicina, navController: NavController,ownerId: Int?) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -115,7 +115,7 @@ fun TipoMedicinaCard(tipoMedicina: TipoMedicina, navController: NavController) {
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 MyButton(
-                    onClick = { navController.navigate("ListMedicines/${tipoMedicina.idTipo}") },
+                    onClick = { navController.navigate("ListMedicines/${tipoMedicina.idTipo}/${ownerId}") },
                     modifier = Modifier
                         .width(100.dp)
                         .padding(horizontal = 8.dp, vertical = 4.dp) // Padding uniforme
