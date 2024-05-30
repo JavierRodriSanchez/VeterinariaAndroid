@@ -51,7 +51,10 @@ android {
 }
 
 dependencies {
+    //stripe
+    implementation("com.stripe:stripe-android:20.44.0")
 
+    //maps
     implementation ("androidx.activity:activity-compose:1.4.0")
     implementation ("com.google.maps.android:maps-ktx:3.1.0")
 

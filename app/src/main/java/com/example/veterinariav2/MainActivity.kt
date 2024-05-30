@@ -78,6 +78,7 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("ownerId") { type = NavType.IntType })
                         ) { backStackEntry ->
                             val ownerId = backStackEntry.arguments?.getInt("ownerId")
+
                             CreatePetScreen(navController = navController, ownerId = ownerId)
                         }
 
@@ -103,31 +104,35 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val petId = backStackEntry.arguments?.getInt("petId")
                             petId?.let {
-                                CitasTextField(petId)
+                                CitasTextField(navController = navController,petId)
                             }
                         }
 
-                        composable("ListTipoMedicina") {
-                            TipoMedicinaListScreen(navController = navController)
+                        composable("ListTipoMedicina/{ownerId}",
+                            arguments = listOf(
+                                navArgument("ownerId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+
+                            val ownerId = backStackEntry.arguments?.getInt("ownerId")
+                            ownerId?.let{
+                                TipoMedicinaListScreen(navController = navController, ownerId = it)
+
+                            }
+
                         }
 
-                        composable(
-                            "ListMedicines/{tipoId}",
+                        composable("ListMedicines/{tipoId}/{ownerId}",
                             arguments = listOf(
                                 navArgument("tipoId") { type = NavType.IntType },
-
-                                )
+                                navArgument("ownerId") { type = NavType.IntType }
+                            )
                         ) { backStackEntry ->
-                            val tipoId = backStackEntry.arguments?.getInt("tipoId")
-
-                            if (tipoId != null ) {
-                                MedicineListScreen(
-                                    navController = navController,
-                                    tipoId = tipoId
-
-                                )
-                            }
+                            val tipoId = backStackEntry.arguments?.getInt("tipoId") ?: 0
+                            val ownerId = backStackEntry.arguments?.getInt("ownerId") ?: 0
+                            MedicineListScreen(navController = navController, tipoId = tipoId, ownerId = ownerId)
                         }
+
+
                         composable("mapa") {
 
                               MyGoogleMaps()
