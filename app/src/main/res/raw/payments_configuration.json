@@ -1,0 +1,30 @@
+{
+  "apiVersion": 2,
+  "apiVersionMinor": 0,
+  "allowedPaymentMethods": [
+    {
+      "type": "CARD",
+      "parameters": {
+        "allowedAuthMethods": ["PAN_ONLY", "CRYPTOGRAM_3DS"],
+        "allowedCardNetworks": ["AMEX", "DISCOVER", "JCB", "MASTERCARD", "VISA"]
+      },
+      "tokenizationSpecification": {
+        "type": "PAYMENT_GATEWAY",
+        "parameters": {
+          "gateway": "example",
+          "gatewayMerchantId": "exampleGatewayMerchantId"
+        }
+      }
+    }
+  ],
+  "merchantInfo": {
+    "merchantName": "Example Merchant",
+    "merchantId": "01234567890123456789"
+  },
+  "transactionInfo": {
+    "totalPriceStatus": "FINAL",
+    "totalPrice": "12.34",
+    "currencyCode": "USD",
+    "countryCode": "US"
+  }
+}

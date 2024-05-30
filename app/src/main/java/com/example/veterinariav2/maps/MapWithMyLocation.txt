@@ -1,0 +1,102 @@
+package com.example.veterinariav2.maps
+
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
+
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
+@SuppressLint("MissingPermission")
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun MapWithMyLocation() {
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    val permissionState = rememberPermissionState(permission = Manifest.permission.ACCESS_FINE_LOCATION)
+    val requestPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            // Permission is granted, proceed to fetch location
+            fetchLocation(fusedLocationClient)
+        }
+    }
+
+    LaunchedEffect(permissionState) {
+        if (!permissionState.hasPermission) {
+            // Request permission if not granted
+            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            // Permission is already granted, fetch location
+            fetchLocation(fusedLocationClient)
+        }
+    }
+
+    // Placeholder for the map composable
+    Text(
+        text = "Map with My Location",
+        modifier = Modifier.fillMaxSize().padding(16.dp)
+    )
+}
+
+@SuppressLint("MissingPermission")
+@Composable
+fun fetchLocation(fusedLocationClient: FusedLocationProviderClient) {
+    val location = remember { mutableStateOf<LatLng?>(null) }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(fusedLocationClient) {
+        // Fetch the last known location
+        val lastLocation = fusedLocationClient.lastLocation.await()
+
+        // Update the location state
+        location.value = LatLng(lastLocation.latitude, lastLocation.longitude)
+    }
+
+    // Render the map with the current location marker
+    MapWithMarker(location.value)
+}
+
+@Composable
+fun MapWithMarker(location: LatLng?) {
+    // Placeholder for the map with the current location marker
+    Text(
+        text = "Map with Marker at Location: $location",
+        modifier = Modifier.fillMaxSize().padding(16.dp)
+    )
+}
+
+//Puntero
+
+val marker = com.google.android.gms.maps.model.LatLng( 43.359235, -8.408890)
+              val cameraPositionState = rememberCameraPositionState {
+                  position = CameraPosition.fromLatLngZoom(marker, 10f)
+              }
+
+              GoogleMap(
+                  modifier = Modifier.fillMaxSize(),
+                  cameraPositionState = cameraPositionState
+              ) {
+                  Marker(
+                      state = MarkerState(position = marker),
+                      title = "Singapore",
+                      snippet = "Marker in Singapore"
+                  )
+              }

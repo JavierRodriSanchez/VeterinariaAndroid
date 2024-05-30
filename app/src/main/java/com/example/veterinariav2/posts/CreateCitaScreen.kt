@@ -65,6 +65,7 @@ fun CreateCitaScreen(navController: NavController, petId: Int?, ownerId: Int?) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Date and Time Picker Button
         OutlinedButton(
             onClick = { datePickerDialog.show() },
             modifier = Modifier
@@ -74,6 +75,7 @@ fun CreateCitaScreen(navController: NavController, petId: Int?, ownerId: Int?) {
             Text(if (fechaCita.isEmpty()) "Seleccionar Fecha y Hora" else fechaCita)
         }
 
+        // Motivo Text Field
         OutlinedTextField(
             value = motivo,
             onValueChange = { motivo = it.trim() },
@@ -82,6 +84,8 @@ fun CreateCitaScreen(navController: NavController, petId: Int?, ownerId: Int?) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         )
+
+        // Observaciones Text Field
         OutlinedTextField(
             value = observaciones,
             onValueChange = { observaciones = it.trim() },
@@ -90,6 +94,8 @@ fun CreateCitaScreen(navController: NavController, petId: Int?, ownerId: Int?) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         )
+
+        // Create Cita Button
         Button(
             onClick = {
                 val cita = Cita(
@@ -101,12 +107,28 @@ fun CreateCitaScreen(navController: NavController, petId: Int?, ownerId: Int?) {
                 )
                 scope.launch {
                     try {
-                        val response = RetrofitClient.citaService.createCita(cita)
-                        if (response.isSuccessful) {
-                            message = "Cita creada exitosamente!"
-                            navController.navigate("petsList/${ownerId}")
+                        // Obtener todas las citas existentes
+                        val listCitas = RetrofitClient.apiService.getCitasAll().body() ?: emptyList()
+                        val newCitaDateTime = LocalDateTime.parse(fechaCita, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"))
+
+                        // Verificar si hay un conflicto con las citas existentes
+                        val conflict = listCitas.any { existingCita ->
+                            val existingCitaDateTime = LocalDateTime.parse(existingCita.fechaCita, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"))
+                            val isSameDay = existingCitaDateTime.toLocalDate().isEqual(newCitaDateTime.toLocalDate())
+                            val isConflictingTime = newCitaDateTime.isAfter(existingCitaDateTime.minusMinutes(60)) && newCitaDateTime.isBefore(existingCitaDateTime.plusMinutes(60))
+                            isSameDay && isConflictingTime
+                        }
+
+                        if (conflict) {
+                            message = "Ya hay una cita en el rango de tiempo seleccionado."
                         } else {
-                            message = "Error: ${response.code()} - ${response.message()}"
+                            val response = RetrofitClient.citaService.createCita(cita)
+                            if (response.isSuccessful) {
+                                message = "Cita creada exitosamente!"
+                                navController.navigate("petsList/${ownerId}")
+                            } else {
+                                message = "Error: ${response.code()} - ${response.message()}"
+                            }
                         }
                     } catch (e: Exception) {
                         message = "Excepción: ${e.message}"
@@ -120,12 +142,23 @@ fun CreateCitaScreen(navController: NavController, petId: Int?, ownerId: Int?) {
             Text("Crear Cita")
         }
 
+        // Display Message Text
         if (message.isNotEmpty()) {
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(vertical = 8.dp)
             )
+        }
+        Button(
+            onClick = {
+                navController.popBackStack() // Navigate back to the previous destination
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+        ) {
+            Text("Volver ")
         }
     }
 }

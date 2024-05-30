@@ -16,25 +16,25 @@ import com.example.veterinariav2.data.RetrofitClient
 import com.example.veterinariav2.model.PetPost
 import com.example.veterinariav2.model.User
 import kotlinx.coroutines.launch
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePetScreen(navController: NavController, ownerId: Int?) {
     var nombre by remember { mutableStateOf("") }
     var idVeterinario by remember { mutableStateOf("") }
     val idDueno = ownerId?.toString() ?: ""
-    var edad by remember { mutableStateOf("") }
+    var edad by remember { mutableStateOf(0f) }
     var raza by remember { mutableStateOf("") }
     var sexo by remember { mutableStateOf("") }
-    var peso by remember { mutableStateOf("") }
+    var expandedSexo by remember { mutableStateOf(false) }
+    var peso by remember { mutableStateOf(0f) }
     var imagenUri by remember { mutableStateOf<Uri?>(null) }
     var message by remember { mutableStateOf("") }
 
     var veterinarios by remember { mutableStateOf<List<User>>(emptyList()) }
     var selectedVeterinario by remember { mutableStateOf<User?>(null) }
-    var expanded by remember { mutableStateOf(false) }
+    var expandedVeterinario by remember { mutableStateOf(false) }
 
-    val isFormValid = nombre.isNotBlank() && idVeterinario.isNotBlank() && idDueno.isNotBlank() && edad.isNotBlank() && raza.isNotBlank() && sexo.isNotBlank() && peso.isNotBlank() && imagenUri != null
+    val isFormValid = nombre.isNotBlank() && idVeterinario.isNotBlank() && idDueno.isNotBlank() && edad > 0 && raza.isNotBlank() && sexo.isNotBlank() && peso > 0 && imagenUri != null
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -75,8 +75,8 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
 
         // Exposed Dropdown Menu for Veterinarios
         ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            expanded = expandedVeterinario,
+            onExpandedChange = { expandedVeterinario = !expandedVeterinario }
         ) {
             TextField(
                 value = selectedVeterinario?.nombre ?: "",
@@ -84,7 +84,7 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
                 readOnly = true,
                 label = { Text("Veterinario") },
                 trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedVeterinario)
                 },
                 modifier = Modifier
                     .menuAnchor()
@@ -92,8 +92,8 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
                     .padding(vertical = 8.dp)
             )
             ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
+                expanded = expandedVeterinario,
+                onDismissRequest = { expandedVeterinario = false }
             ) {
                 veterinarios.forEach { veterinario ->
                     DropdownMenuItem(
@@ -101,7 +101,7 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
                         onClick = {
                             selectedVeterinario = veterinario
                             idVeterinario = veterinario.id.toString()
-                            expanded = false
+                            expandedVeterinario = false
                         }
                     )
                 }
@@ -118,15 +118,19 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         )
-        TextField(
+
+        // Selector de edad
+        Text(text = "Edad: ${edad.toInt()} años")
+        Slider(
             value = edad,
-            onValueChange = { edad = it.trim() },
-            label = { Text("Edad") },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            onValueChange = { edad = it },
+            valueRange = 0f..20f,
+            steps = 19,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         )
+
         TextField(
             value = raza,
             onValueChange = { raza = it.trim() },
@@ -136,20 +140,53 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         )
-        TextField(
-            value = sexo,
-            onValueChange = { sexo = it.trim() },
-            label = { Text("Sexo") },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-        )
-        TextField(
+
+        // Exposed Dropdown Menu for Sexo
+        ExposedDropdownMenuBox(
+            expanded = expandedSexo,
+            onExpandedChange = { expandedSexo = !expandedSexo }
+        ) {
+            TextField(
+                value = sexo,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Sexo") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedSexo)
+                },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            )
+            ExposedDropdownMenu(
+                expanded = expandedSexo,
+                onDismissRequest = { expandedSexo = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Hembra") },
+                    onClick = {
+                        sexo = "Hembra"
+                        expandedSexo = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Macho") },
+                    onClick = {
+                        sexo = "Macho"
+                        expandedSexo = false
+                    }
+                )
+            }
+        }
+
+        // Selector de peso
+        Text(text = "Peso: ${peso.toInt()} kg")
+        Slider(
             value = peso,
-            onValueChange = { peso = it.trim() },
-            label = { Text("Peso") },
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+            onValueChange = { peso = it },
+            valueRange = 0f..50f,
+            steps = 49,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
@@ -178,7 +215,7 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
                     edad = edad.toInt(),
                     raza = raza,
                     sexo = sexo,
-                    peso = peso,
+                    peso = peso.toInt().toString(), // Convertir el peso a cadena
                     imagen = imagenUri.toString()
                 )
                 scope.launch {
@@ -186,7 +223,7 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
                         val response = RetrofitClient.petsService.createPet(pet)
                         if (response.isSuccessful) {
                             message = "Pet created successfully!"
-                            navController.navigate("login") // Navigate back to the login screen
+                            navController.popBackStack()// Navigate back to the login screen
                         } else {
                             message = "Error: ${response.code()} - ${response.message()}"
                         }
@@ -226,3 +263,5 @@ fun CreatePetScreen(navController: NavController, ownerId: Int?) {
         }
     }
 }
+
+
