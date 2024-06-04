@@ -43,4 +43,8 @@ object RetrofitClient {
     val pagosService :PagoService by lazy {
         retrofit.create(PagoService::class.java)
     }
+
+    val pagosByClient :PagosServiceByClient by lazy {
+        retrofit.create(PagosServiceByClient::class.java)
+    }
 }

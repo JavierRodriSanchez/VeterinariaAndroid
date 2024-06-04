@@ -33,7 +33,7 @@
     import java.util.*
 
     @Composable
-    fun MedicineListScreen(navController: NavController, tipoId: Int,ownerId:Int) {
+    fun MedicineListScreen(navController: NavController, tipoId: Int,ownerId:Int,onPayClick: () -> Unit) {
         var medicines by remember { mutableStateOf<List<Medicine>>(emptyList()) }
         var totalValue by remember { mutableStateOf(0.0) } // Estado para mantener el valor total
         var showConfirmationDialog by remember { mutableStateOf(false) }
@@ -85,8 +85,19 @@
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
                 }
+                Button(onClick = onPayClick) {
+                    Text(text = "Pagar con: ")
+                    Image(
+                        painter = painterResource(id = R.drawable.logogoogle),
+                        contentDescription = "Google Pay",
+                        modifier = Modifier.size(24.dp)
+                    )
+
+                }
+                val fechaPago = obtenerFechaHoy()
                 Button(onClick = {
-                    val fechaPago = obtenerFechaHoy()
+
+
 
                     // Crear un objeto PagoRequest con los datos necesarios
                     val pagoRequest = PagoRequest(idPago = 0, fechaPago = fechaPago, monto = totalValue, idMascota = ownerId) // Reemplaza 1 con el ID del owner  seleccionada
@@ -107,6 +118,7 @@
                             // Por ejemplo, mostrar un mensaje de error
                         }
                     }
+                    //onPayClick()
                 }) {
                     Text(text = "Pagar: $totalValue")
                 }
@@ -126,7 +138,14 @@
             )
         }
     }}
-
+    @Composable
+    fun PaymentScreen(onPayClick: () -> Unit) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Button(onClick = onPayClick) {
+                Text(text = "Pagar con Google Pay")
+            }
+        }
+    }
     fun obtenerFechaHoy(): String {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val fechaHoy = Calendar.getInstance().time
@@ -153,4 +172,7 @@
                 }
             }
         }
+
     }
+
+
