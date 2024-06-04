@@ -81,8 +81,8 @@ fun OwnerListScreen(navController: NavController, ownerId: Int) {
                         Button(onClick = { navController.navigate("mapa") }) {
                             Text("Mapa")
                         }
-                        Button(onClick = { /* Acción para el cuarto botón */ }) {
-                            Text("Botón 4")
+                        Button(onClick = { navController.navigate("listaPagos/${ownerId}")}) {
+                            Text("Pagos")
                         }
                     }
                 }
